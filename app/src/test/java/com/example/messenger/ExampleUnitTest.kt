@@ -1,4 +1,4 @@
-package com.example.messenger
+package com.igavrysh.messenger
 
 import org.junit.Test
 
