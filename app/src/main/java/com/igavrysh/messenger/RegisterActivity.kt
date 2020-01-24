@@ -19,6 +19,8 @@ class RegisterActivity : AppCompatActivity() {
 
     var selectedPhotoUri: Uri? = null
 
+    private val TAG = "RegisterActivity"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_register)
@@ -28,7 +30,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         already_have_account_text_view.setOnClickListener {
-            Log.d("RegisterActivity", "Try to show new activity")
+            Log.d(TAG, "Try to show new activity")
 
             // launch the login activity somehow
             val intent = Intent(this, LoginActivity::class.java)
@@ -36,7 +38,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         selectphoto_button_register.setOnClickListener {
-            Log.d("RegisterActivity", "Try to show photo selector")
+            Log.d(TAG, "Try to show photo selector")
 
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
@@ -48,7 +50,7 @@ class RegisterActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) {
-            Log.d("RegisterActivity", "Photo was selected")
+            Log.d(TAG, "Photo was selected")
 
             selectedPhotoUri = data.data
             val bitmap = MediaStore.Images.Media.getBitmap(contentResolver, selectedPhotoUri)
@@ -76,8 +78,8 @@ class RegisterActivity : AppCompatActivity() {
             return
         }
 
-        Log.d("RegisterActivity", "Email is: " + email)
-        Log.d("RegisterActivity", "Password: $password")
+        Log.d(TAG, "Email is: " + email)
+        Log.d(TAG, "Password: $password")
 
         // Firebase Authentication to creat a user with email and password
         FirebaseAuth.getInstance()
@@ -87,15 +89,14 @@ class RegisterActivity : AppCompatActivity() {
                     return@addOnCompleteListener
                 }
 
+
                 // else if successful
-                Log.d(
-                    "RegisterActivity",
-                    "Successfully created user with uid: $it.result.user.uid")
+                Log.d(TAG, "Successfully created user with uid: $it.result.user.uid")
 
                 uploadImageToFirebaseStorage()
             }
             .addOnFailureListener {
-                Log.d("RegisterActivity", "Failed to create user: ${it.message}")
+                Log.d(TAG, "Failed to create user: ${it.message}")
                 Toast.makeText(
                     this,
                     "Failed to create user: ${it.message}",
@@ -112,16 +113,16 @@ class RegisterActivity : AppCompatActivity() {
         val ref = FirebaseStorage.getInstance().getReference("/images/$filename")
 
         ref.putFile(selectedPhotoUri!!).addOnSuccessListener {
-            Log.d("Register", "Successfully uploaded image: ${it.metadata?.path}")
+            Log.d(TAG, "Successfully uploaded image: ${it.metadata?.path}")
 
             ref.downloadUrl
                 .addOnSuccessListener {
                     it.toString()
-                    Log.d("RegisterActivity", "File Location: $it")
+                    Log.d(TAG, "File Location: $it")
                     saveUserToFirebaseDatabase(it.toString())
                 }
                 .addOnFailureListener {
-                    // do some logging here
+                    Log.d(TAG, "Failed to upload image to storage: ${it.message}")
                 }
         }
     }
@@ -131,9 +132,17 @@ class RegisterActivity : AppCompatActivity() {
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
 
         val user = User(uid, username_edittext_register.text.toString(), profileImageUrl)
-        ref.setValue(user).addOnSuccessListener {
-            Log.d("RegisterActivity", "Finally we saved the user to Firebase Database")
-        }
+        ref.setValue(user)
+            .addOnSuccessListener {
+                Log.d(TAG, "Finally we saved the user to Firebase Database")
+
+                val intent = Intent(this, LatestMessagesActivity::class.java)
+                intent.flags = Intent.FLAG_ACTIVITY_CLEAR_TASK.or(Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+            }
+            .addOnFailureListener {
+                Log.d(TAG, "Failed to set value to database: ${it.message}")
+            }
     }
 }
 
