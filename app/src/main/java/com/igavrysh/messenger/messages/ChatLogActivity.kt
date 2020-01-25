@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import com.igavrysh.messenger.R
 import com.igavrysh.messenger.models.User
@@ -35,16 +36,34 @@ class ChatLogActivity : AppCompatActivity() {
         }
     }
 
-    class ChatMessage(val text: String)
+    class ChatMessage(
+        val id: String,
+        val text: String,
+        val fromId: String,
+        val toId: String,
+        val timestamp: Long)
 
     private fun performSendMessage() {
         val text = edittext_chat_log.text.toString()
+        val fromId = FirebaseAuth.getInstance().uid
+        val user = intent.getParcelableExtra<User>(NewMessageActivity.USER_KEY)
+        val toId = user.uid
+
+        if (fromId == null) {
+            return
+        }
+
 
         val reference = FirebaseDatabase.getInstance()
             .getReference("/messages")
             .push()
 
-        val chatMessage = ChatMessage(text)
+        val chatMessage = ChatMessage(
+            reference.key!!,
+            text,
+            fromId,
+            toId,
+            System.currentTimeMillis() / 1000)
         reference.setValue(chatMessage)
             .addOnSuccessListener {
                 Log.d(TAG, "Saved our chat message: ${reference.key}")
