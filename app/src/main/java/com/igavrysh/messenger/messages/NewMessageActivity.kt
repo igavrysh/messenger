@@ -1,5 +1,6 @@
-package com.igavrysh.messenger
+package com.igavrysh.messenger.messages
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -7,6 +8,8 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.database.ValueEventListener
+import com.igavrysh.messenger.R
+import com.igavrysh.messenger.models.User
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
@@ -29,6 +32,10 @@ class NewMessageActivity : AppCompatActivity() {
         fetchUsers()
     }
 
+    companion object {
+        val USER_KEY = "USER_KEY"
+    }
+
     private fun fetchUsers() {
         val ref = FirebaseDatabase.getInstance().getReference("/users")
         ref.addListenerForSingleValueEvent(object: ValueEventListener {
@@ -42,7 +49,17 @@ class NewMessageActivity : AppCompatActivity() {
                     if (user != null) {
                         adapter.add(UserItem(user))
                     }
+                }
 
+                adapter.setOnItemClickListener { item, view ->
+                    val userItem = item as UserItem
+
+                    val intent = Intent(view.context, ChatLogActivity::class.java)
+                    intent.putExtra(USER_KEY, userItem.user)
+
+                    startActivity(intent)
+
+                    finish()
                 }
 
                 recyclerview_newmessage.adapter = adapter

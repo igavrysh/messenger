@@ -1,8 +1,7 @@
-package com.igavrysh.messenger
+package com.igavrysh.messenger.registerlogin
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.drawable.BitmapDrawable
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -14,6 +13,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.android.synthetic.main.activity_register.*
 import java.util.*
+import com.igavrysh.messenger.messages.LatestMessagesActivity
+import com.igavrysh.messenger.R
+import com.igavrysh.messenger.models.User
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -131,7 +133,11 @@ class RegisterActivity : AppCompatActivity() {
         val uid = FirebaseAuth.getInstance().uid ?: ""
         val ref = FirebaseDatabase.getInstance().getReference("/users/$uid")
 
-        val user = User(uid, username_edittext_register.text.toString(), profileImageUrl)
+        val user = User(
+            uid,
+            username_edittext_register.text.toString(),
+            profileImageUrl
+        )
         ref.setValue(user)
             .addOnSuccessListener {
                 Log.d(TAG, "Finally we saved the user to Firebase Database")
@@ -146,6 +152,3 @@ class RegisterActivity : AppCompatActivity() {
     }
 }
 
-class User(val uid: String, val username: String, val profileImageUrl: String) {
-    constructor() : this("", "", "")
-}
