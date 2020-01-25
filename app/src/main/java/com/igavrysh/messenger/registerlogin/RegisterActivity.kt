@@ -21,7 +21,9 @@ class RegisterActivity : AppCompatActivity() {
 
     var selectedPhotoUri: Uri? = null
 
-    private val TAG = "RegisterActivity"
+    companion object {
+        val TAG = "Register"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -10,6 +10,10 @@ import kotlinx.android.synthetic.main.activity_login.*
 
 class LoginActivity: AppCompatActivity() {
 
+    companion object {
+        val TAG = "Login"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -19,7 +23,7 @@ class LoginActivity: AppCompatActivity() {
             val email = email_edittext_login.text.toString()
             val password = password_edittext_login.text.toString()
 
-            Log.d("Login", "Attempt login with email/pw: $email/***")
+            Log.d(TAG, "Attempt login with email/pw: $email/***")
 
             FirebaseAuth.getInstance()
                 .signInWithEmailAndPassword(email, password)
@@ -28,9 +32,7 @@ class LoginActivity: AppCompatActivity() {
                         return@addOnCompleteListener
                     }
 
-                    Log.d(
-                        "Main",
-                        "Successfully created user with uid: $it.result.user.uid")
+                    Log.d(TAG, "Successfully created user with uid: $it.result.user.uid")
 
                     Toast.makeText(
                         this,
@@ -40,7 +42,7 @@ class LoginActivity: AppCompatActivity() {
 
                 }
                 .addOnFailureListener {
-                    Log.d("Main", "Failed to create user: ${it.message}")
+                    Log.d(TAG, "Failed to create user: ${it.message}")
                     Toast.makeText(
                         this,
                         "Failed to login user: ${it.message}",
