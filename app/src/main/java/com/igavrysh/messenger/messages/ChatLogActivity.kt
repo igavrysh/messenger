@@ -59,7 +59,9 @@ class ChatLogActivity : AppCompatActivity() {
                 if (chatMessage != null) {
                     Log.d(TAG, chatMessage.text)
 
-                    if (chatMessage.fromId == FirebaseAuth.getInstance().uid) {
+                    val currentUserUid = FirebaseAuth.getInstance().uid
+
+                    if (chatMessage.fromId == currentUserUid) {
                         adapter.add(ChatFromItem(chatMessage.text))
                     } else {
                         adapter.add(ChatToItem(chatMessage.text))
@@ -85,6 +87,9 @@ class ChatLogActivity : AppCompatActivity() {
     private fun performSendMessage() {
         val text = edittext_chat_log.text.toString()
         val fromId = FirebaseAuth.getInstance().uid
+
+
+
         val user = intent.getParcelableExtra<User>(NewMessageActivity.USER_KEY)
         val toId = user.uid
 
