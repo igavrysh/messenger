@@ -21,6 +21,10 @@ class RegisterActivity : AppCompatActivity() {
 
     var selectedPhotoUri: Uri? = null
 
+    val SELECT_IMAGE_REQUEST = 0
+    val LOGIN_REQUEST = 1
+
+
     companion object {
         val TAG = "Register"
     }
@@ -38,7 +42,7 @@ class RegisterActivity : AppCompatActivity() {
 
             // launch the login activity somehow
             val intent = Intent(this, LoginActivity::class.java)
-            startActivity(intent)
+            startActivityForResult(intent, LOGIN_REQUEST)
         }
 
         selectphoto_button_register.setOnClickListener {
@@ -46,14 +50,17 @@ class RegisterActivity : AppCompatActivity() {
 
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
-            startActivityForResult(intent, 0)
+            startActivityForResult(intent, SELECT_IMAGE_REQUEST)
         }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == 0 && resultCode == Activity.RESULT_OK && data != null) {
+        if (requestCode == SELECT_IMAGE_REQUEST
+            && resultCode == Activity.RESULT_OK
+            && data != null)
+        {
             Log.d(TAG, "Photo was selected")
 
             selectedPhotoUri = data.data
@@ -66,6 +73,13 @@ class RegisterActivity : AppCompatActivity() {
             val bitmapDrawable = BitmapDrawable(bitmap)
             selectphoto_button_register.setBackgroundDrawable(bitmapDrawable)
              */
+        }
+
+        if (requestCode == LOGIN_REQUEST
+            && resultCode == Activity.RESULT_OK)
+        {
+            Log.d(TAG,"Successfull login")
+            finish()
         }
     }
 
@@ -92,7 +106,6 @@ class RegisterActivity : AppCompatActivity() {
                 if (!it.isSuccessful) {
                     return@addOnCompleteListener
                 }
-
 
                 // else if successful
                 Log.d(TAG, "Successfully created user with uid: $it.result.user.uid")

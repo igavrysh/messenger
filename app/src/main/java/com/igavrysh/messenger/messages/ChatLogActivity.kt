@@ -12,6 +12,7 @@ import com.google.firebase.database.FirebaseDatabase
 import com.igavrysh.messenger.R
 import com.igavrysh.messenger.models.ChatMessage
 import com.igavrysh.messenger.models.User
+import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
@@ -27,18 +28,19 @@ class ChatLogActivity : AppCompatActivity() {
 
     val adapter = GroupAdapter<ViewHolder>()
 
+    var toUser: User? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_log)
 
         recyclerview_chat_log.adapter = adapter
 
-        val user = intent.getParcelableExtra<User>(NewMessageActivity.USER_KEY)
-        supportActionBar?.title = user.username
+        toUser = intent.getParcelableExtra<User>(NewMessageActivity.USER_KEY)
+        supportActionBar?.title = toUser?.username
 
         adapter.add(ChatFooterItem())
 
-        //setupDummyData()
         listenForMessages()
 
         send_button_chat_log.setOnClickListener {
@@ -58,13 +60,11 @@ class ChatLogActivity : AppCompatActivity() {
 
                 if (chatMessage != null) {
                     Log.d(TAG, chatMessage.text)
-
-                    val currentUserUid = FirebaseAuth.getInstance().uid
-
-                    if (chatMessage.fromId == currentUserUid) {
-                        adapter.add(ChatFromItem(chatMessage.text))
+                    val currentUser = LatestMessagesActivity.currentUser ?: return
+                    if (chatMessage.fromId == currentUser.uid) {
+                        adapter.add(ChatFromItem(chatMessage.text, currentUser))
                     } else {
-                        adapter.add(ChatToItem(chatMessage.text))
+                        adapter.add(ChatToItem(chatMessage.text, toUser!!))
                     }
                 }
             }
@@ -87,8 +87,6 @@ class ChatLogActivity : AppCompatActivity() {
     private fun performSendMessage() {
         val text = edittext_chat_log.text.toString()
         val fromId = FirebaseAuth.getInstance().uid
-
-
 
         val user = intent.getParcelableExtra<User>(NewMessageActivity.USER_KEY)
         val toId = user.uid
@@ -115,31 +113,16 @@ class ChatLogActivity : AppCompatActivity() {
                 Log.d(TAG, "Failed to send message: ${it.message}")
             }
     }
-
-    private fun setupDummyData() {
-        val adapter = GroupAdapter<ViewHolder>()
-
-        adapter.add(ChatToItem("TO MESSAGE"))
-        adapter.add(ChatFromItem("FROM MESSAGE...."))
-        adapter.add(ChatToItem("abc"))
-        adapter.add(ChatFromItem("abc"))
-        adapter.add(ChatFromItem("abc"))
-        adapter.add(ChatToItem("abc"))
-        adapter.add(ChatToItem("abc"))
-        adapter.add(ChatFromItem("abc"))
-        adapter.add(ChatToItem("abc"))
-        adapter.add(ChatToItem("abc"))
-        adapter.add(ChatFromItem("abc"))
-        adapter.add(ChatFromItem("abc"))
-        adapter.add(ChatFooterItem())
-
-        recyclerview_chat_log.adapter = adapter
-    }
 }
 
-class ChatFromItem(val text: String): Item<ViewHolder>() {
+class ChatFromItem(val text: String, val user: User): Item<ViewHolder>() {
     override fun bind(viewHolder: ViewHolder, position: Int) {
         viewHolder.itemView.textview_from_row.text = text
+
+        // load our user image into the star
+        val uri = user.profileImageUrl
+        val targetImageView = viewHolder.itemView.imageview_from_row
+        Picasso.get().load(uri).into(targetImageView)
     }
 
     override fun getLayout(): Int {
@@ -148,9 +131,14 @@ class ChatFromItem(val text: String): Item<ViewHolder>() {
 }
 
 
-class ChatToItem(val text: String): Item<ViewHolder>() {
+class ChatToItem(val text: String, var user: User): Item<ViewHolder>() {
     override fun bind(viewHolder: ViewHolder, position: Int) {
         viewHolder.itemView.textview_to_row.text = text
+
+        // load our user image into the star
+        val uri = user.profileImageUrl
+        val targetImageView = viewHolder.itemView.imageview_to_row
+        Picasso.get().load(uri).into(targetImageView)
     }
 
     override fun getLayout(): Int {

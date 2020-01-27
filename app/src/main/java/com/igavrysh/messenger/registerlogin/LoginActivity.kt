@@ -1,5 +1,6 @@
 package com.igavrysh.messenger.registerlogin
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -8,11 +9,13 @@ import com.google.firebase.auth.FirebaseAuth
 import com.igavrysh.messenger.R
 import kotlinx.android.synthetic.main.activity_login.*
 
-class LoginActivity: AppCompatActivity() {
+class LoginActivity(): AppCompatActivity() {
 
     companion object {
         val TAG = "Login"
     }
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,7 +35,7 @@ class LoginActivity: AppCompatActivity() {
                         return@addOnCompleteListener
                     }
 
-                    Log.d(TAG, "Successfully created user with uid: $it.result.user.uid")
+                    Log.d(TAG, "Successfully logined user with uid: $it.result.user.uid")
 
                     Toast.makeText(
                         this,
@@ -40,6 +43,8 @@ class LoginActivity: AppCompatActivity() {
                         Toast.LENGTH_SHORT)
                         .show()
 
+                    setResult(Activity.RESULT_OK);
+                    finish()
                 }
                 .addOnFailureListener {
                     Log.d(TAG, "Failed to create user: ${it.message}")
@@ -52,6 +57,7 @@ class LoginActivity: AppCompatActivity() {
         }
 
         back_to_register_textview.setOnClickListener {
+            setResult(Activity.RESULT_CANCELED)
             finish()
         }
     }
