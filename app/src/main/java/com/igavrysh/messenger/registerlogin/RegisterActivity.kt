@@ -24,7 +24,6 @@ class RegisterActivity : AppCompatActivity() {
     val SELECT_IMAGE_REQUEST = 0
     val LOGIN_REQUEST = 1
 
-
     companion object {
         val TAG = "Register"
     }

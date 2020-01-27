@@ -19,9 +19,9 @@ class LatestMessagesActivity : AppCompatActivity() {
 
     companion object {
         var currentUser: User? = null
-        var TAG = "LatestMessages"
     }
 
+    var TAG = "LatestMessages"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

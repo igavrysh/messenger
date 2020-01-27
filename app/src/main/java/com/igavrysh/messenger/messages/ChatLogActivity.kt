@@ -12,6 +12,9 @@ import com.google.firebase.database.FirebaseDatabase
 import com.igavrysh.messenger.R
 import com.igavrysh.messenger.models.ChatMessage
 import com.igavrysh.messenger.models.User
+import com.igavrysh.messenger.views.ChatFooterItem
+import com.igavrysh.messenger.views.ChatFromItem
+import com.igavrysh.messenger.views.ChatToItem
 import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
@@ -50,7 +53,10 @@ class ChatLogActivity : AppCompatActivity() {
     }
 
     private fun listenForMessages() {
-        val ref = FirebaseDatabase.getInstance().getReference("/messages")
+        val fromId = FirebaseAuth.getInstance().uid
+        val toId = toUser?.uid
+        val ref = FirebaseDatabase.getInstance()
+            .getReference("/user-messages/$fromId/$toId")
 
         ref.addChildEventListener(object: ChildEventListener {
 
@@ -96,7 +102,11 @@ class ChatLogActivity : AppCompatActivity() {
         }
 
         val reference = FirebaseDatabase.getInstance()
-            .getReference("/messages")
+            .getReference("/user-messages/$fromId/$toId")
+            .push()
+
+        val toReference = FirebaseDatabase.getInstance()
+            .getReference("/user-messages/$toId/$fromId")
             .push()
 
         val chatMessage = ChatMessage(
@@ -105,52 +115,18 @@ class ChatLogActivity : AppCompatActivity() {
             fromId,
             toId,
             System.currentTimeMillis() / 1000)
+
         reference.setValue(chatMessage)
             .addOnSuccessListener {
                 Log.d(TAG, "Saved our chat message: ${reference.key}")
+                edittext_chat_log.text.clear()
+                recyclerview_chat_log.scrollToPosition(adapter.itemCount - 1)
             }
             .addOnFailureListener {
                 Log.d(TAG, "Failed to send message: ${it.message}")
             }
+
+        toReference.setValue(chatMessage)
     }
 }
 
-class ChatFromItem(val text: String, val user: User): Item<ViewHolder>() {
-    override fun bind(viewHolder: ViewHolder, position: Int) {
-        viewHolder.itemView.textview_from_row.text = text
-
-        // load our user image into the star
-        val uri = user.profileImageUrl
-        val targetImageView = viewHolder.itemView.imageview_from_row
-        Picasso.get().load(uri).into(targetImageView)
-    }
-
-    override fun getLayout(): Int {
-        return R.layout.chat_from_row
-    }
-}
-
-
-class ChatToItem(val text: String, var user: User): Item<ViewHolder>() {
-    override fun bind(viewHolder: ViewHolder, position: Int) {
-        viewHolder.itemView.textview_to_row.text = text
-
-        // load our user image into the star
-        val uri = user.profileImageUrl
-        val targetImageView = viewHolder.itemView.imageview_to_row
-        Picasso.get().load(uri).into(targetImageView)
-    }
-
-    override fun getLayout(): Int {
-        return R.layout.chat_to_row
-    }
-}
-
-class ChatFooterItem: Item<ViewHolder>() {
-    override fun bind(viewHolder: ViewHolder, position: Int) {
-    }
-
-    override fun getLayout(): Int {
-        return R.layout.chat_footer_row
-    }
-}
