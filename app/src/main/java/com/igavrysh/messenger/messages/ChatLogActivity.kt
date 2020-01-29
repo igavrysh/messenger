@@ -72,6 +72,7 @@ class ChatLogActivity : AppCompatActivity() {
                     } else {
                         adapter.add(ChatToItem(chatMessage.text, toUser!!))
                     }
+                    scrollToLastMessage()
                 }
             }
 
@@ -120,7 +121,7 @@ class ChatLogActivity : AppCompatActivity() {
             .addOnSuccessListener {
                 Log.d(TAG, "Saved our chat message: ${reference.key}")
                 edittext_chat_log.text.clear()
-                recyclerview_chat_log.scrollToPosition(adapter.itemCount - 1)
+                scrollToLastMessage()
             }
             .addOnFailureListener {
                 Log.d(TAG, "Failed to send message: ${it.message}")
@@ -134,7 +135,11 @@ class ChatLogActivity : AppCompatActivity() {
 
         val latestMessageToRef = FirebaseDatabase.getInstance()
             .getReference("/latest-messages/$toId/$fromId")
-        latestMessageRef.setValue(chatMessage)
+        latestMessageToRef.setValue(chatMessage)
+    }
+
+    private fun scrollToLastMessage() {
+        recyclerview_chat_log.scrollToPosition(adapter.itemCount - 1)
     }
 }
 
