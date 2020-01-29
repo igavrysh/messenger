@@ -23,14 +23,12 @@ class LatestMessageRow(val chatMessage: ChatMessage): Item<ViewHolder>() {
 
     override fun bind(viewHolder: ViewHolder, position: Int) {
         viewHolder.itemView.message_textview_latest_message.text = chatMessage.text
-
     }
 
     override fun getLayout(): Int {
         return R.layout.latest_message_row
     }
 }
-
 
 class LatestMessagesActivity : AppCompatActivity() {
 
@@ -41,6 +39,8 @@ class LatestMessagesActivity : AppCompatActivity() {
     var TAG = "LatestMessages"
 
     val adapter = GroupAdapter<ViewHolder>()
+
+    val latestMessagesMap = HashMap<String, ChatMessage>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,18 +54,28 @@ class LatestMessagesActivity : AppCompatActivity() {
         verifyUserIsLoggedIn()
     }
 
+    private fun refreshRecyclerViewMessages() {
+        adapter.clear()
+        latestMessagesMap.values.forEach {
+            adapter.add(LatestMessageRow(it))
+        }
+    }
+
     private fun listenForLatestMessages() {
         val fromId = FirebaseAuth.getInstance().uid
         val ref = FirebaseDatabase.getInstance()
-            .getReference("/latest-messages/@$fromId")
+            .getReference("/latest-messages/$fromId")
         ref.addChildEventListener(object: ChildEventListener {
             override fun onChildAdded(p0: DataSnapshot, p1: String?) {
                 val chatMessage = p0.getValue(ChatMessage::class.java) ?: return
-                adapter.add(LatestMessageRow(chatMessage))
-
+                latestMessagesMap[p0.key!!] = chatMessage
+                refreshRecyclerViewMessages()
             }
 
             override fun onChildChanged(p0: DataSnapshot, p1: String?) {
+                val chatMessage = p0.getValue(ChatMessage::class.java) ?: return
+                latestMessagesMap[p0.key!!] = chatMessage
+                refreshRecyclerViewMessages()
             }
 
             override fun onChildMoved(p0: DataSnapshot, p1: String?) {
