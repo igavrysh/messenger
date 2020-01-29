@@ -9,6 +9,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 import com.igavrysh.messenger.R
+import com.igavrysh.messenger.extensions.KeyboardEventListener
 import com.igavrysh.messenger.models.ChatMessage
 import com.igavrysh.messenger.models.User
 import com.igavrysh.messenger.views.ChatFooterItem
@@ -44,6 +45,13 @@ class ChatLogActivity : AppCompatActivity() {
         send_button_chat_log.setOnClickListener {
             Log.d(TAG, "Attempt to send message")
             performSendMessage()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        KeyboardEventListener(this) { isOpen ->
+            scrollToLastMessage()
         }
     }
 

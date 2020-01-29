@@ -6,6 +6,8 @@ apply plugin: 'kotlin-android-extensions'
 
 apply plugin: 'com.google.gms.google-services'
 
+apply plugin: 'kotlin-kapt'
+
 /*
 androidExensions {
     experimental = true
@@ -51,4 +53,8 @@ dependencies {
 
     implementation 'com.xwray:groupie:2.1.0'
     implementation 'com.squareup.picasso:picasso:2.71828'
+
+    implementation "androidx.lifecycle:lifecycle-common:$vLifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-extensions:$vLifecycleVersion"
+    kapt "androidx.lifecycle:lifecycle-compiler:$vLifecycleVersion"
 }
