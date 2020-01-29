@@ -67,8 +67,8 @@ class ChatLogActivity : AppCompatActivity() {
                     } else {
                         adapter.add(ChatToItem(chatMessage.text, toUser!!))
                     }
-                    scrollToLastMessage()
                 }
+                scrollToLastMessage()
             }
 
             override fun onCancelled(p0: DatabaseError) {

@@ -6,12 +6,16 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import com.igavrysh.messenger.R
+import com.igavrysh.messenger.messages.NewMessageActivity.Companion.USER_KEY
 import com.igavrysh.messenger.models.ChatMessage
 import com.igavrysh.messenger.models.User
 import com.igavrysh.messenger.registerlogin.RegisterActivity
+import com.igavrysh.messenger.views.LatestMessageRow
+import com.squareup.picasso.Picasso
 import com.xwray.groupie.GroupAdapter
 import com.xwray.groupie.Item
 import com.xwray.groupie.ViewHolder
@@ -19,16 +23,6 @@ import kotlinx.android.synthetic.main.activity_latest_messages.*
 import kotlinx.android.synthetic.main.latest_message_row.view.*
 
 
-class LatestMessageRow(val chatMessage: ChatMessage): Item<ViewHolder>() {
-
-    override fun bind(viewHolder: ViewHolder, position: Int) {
-        viewHolder.itemView.message_textview_latest_message.text = chatMessage.text
-    }
-
-    override fun getLayout(): Int {
-        return R.layout.latest_message_row
-    }
-}
 
 class LatestMessagesActivity : AppCompatActivity() {
 
@@ -46,6 +40,15 @@ class LatestMessagesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_latest_messages)
         recyclerview_latest_messages.adapter = adapter
+        recyclerview_latest_messages.addItemDecoration(
+            (DividerItemDecoration(this, DividerItemDecoration.VERTICAL)))
+
+        adapter.setOnItemClickListener { item, view ->
+            val intent = Intent(this, ChatLogActivity::class.java)
+            val row = item as LatestMessageRow
+            intent.putExtra(USER_KEY, row.chatPartnerUser)
+            startActivity(intent)
+        }
 
         listenForLatestMessages()
 
